@@ -1,14 +1,19 @@
 package main
 
 import (
+	"fmt"
 	"image"
 	_ "image/png"
+	"io/ioutil"
 	"math"
 	"os"
 
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
+	"github.com/faiface/pixel/text"
+	"github.com/golang/freetype/truetype"
 	"golang.org/x/image/colornames"
+	"golang.org/x/image/font"
 )
 
 const (
@@ -44,6 +49,16 @@ func run() {
 		panic(err)
 	}
 
+	face, err := loadTTF("fonts/Hyperspace.otf", 32)
+	if err != nil {
+		panic(err)
+	}
+
+	atlas := text.NewAtlas(face, text.ASCII)
+	txt := text.New(pixel.V(100, 100), atlas)
+
+	fmt.Fprintln(txt, "bacon")
+
 	sprite := pixel.NewSprite(pic, pic.Bounds())
 
 	position := win.Bounds().Center()
@@ -55,16 +70,6 @@ func run() {
 	for !win.Closed() {
 		// dt = time.Since(last).Seconds()
 		// last = time.Now()
-
-		// bounce horizontally
-		// if position.X+halfShipWidth >= 512 || position.X-halfShipWidth <= 0 {
-		// 	d.X *= -1
-		// }
-
-		// bounce vertically
-		// if position.Y+halfShipWidth >= 512 || position.Y-halfShipWidth <= 0 {
-		// 	d.Y *= -1
-		// }
 
 		// wrap logic
 		if position.X > windowWidth {
@@ -116,6 +121,8 @@ func run() {
 		sprite.Draw(win, matLeft)
 		sprite.Draw(win, matRight)
 
+		txt.Draw(win, pixel.IM)
+
 		win.Update()
 	}
 }
@@ -131,6 +138,29 @@ func loadPicture(path string) (pixel.Picture, error) {
 		return nil, err
 	}
 	return pixel.PictureDataFromImage(img), nil
+}
+
+func loadTTF(path string, size float64) (font.Face, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	bytes, err := ioutil.ReadAll(file)
+	if err != nil {
+		return nil, err
+	}
+
+	font, err := truetype.Parse(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	return truetype.NewFace(font, &truetype.Options{
+		Size:              size,
+		GlyphCacheEntries: 1,
+	}), nil
 }
 
 func degreesToRadians(degrees int) float64 {
