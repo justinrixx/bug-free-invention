@@ -12,6 +12,7 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
 	"github.com/golang/freetype/truetype"
+	"github.com/justinrixx/bug-free-invention/smashteroids"
 	"golang.org/x/image/colornames"
 	"golang.org/x/image/font"
 )
@@ -62,64 +63,24 @@ func run() {
 	sprite := pixel.NewSprite(pic, pic.Bounds())
 
 	position := win.Bounds().Center()
-	var positionAbove, positionBelow, positionLeft, positionRight pixel.Vec
-	d := pixel.V(0, 0)
 	rotation := 0
+
+	ship := smashteroids.Ship{
+		Position: position,
+		Rotation: rotation,
+		Sprite:   sprite,
+	}
 
 	// last := time.Now()
 	for !win.Closed() {
 		// dt = time.Since(last).Seconds()
 		// last = time.Now()
 
-		// wrap logic
-		if position.X > windowWidth {
-			position.X = position.X - windowWidth
-		}
-		if position.X < 0 {
-			position.X = position.X + windowWidth
-		}
-		if position.Y > windowHeight {
-			position.Y = position.Y - windowHeight
-		}
-		if position.Y < 0 {
-			position.Y = position.Y + windowHeight
-		}
-
-		// calculate new velocity based on user input
-		if win.Pressed(pixelgl.KeyLeft) {
-			rotation += 3
-		}
-		if win.Pressed(pixelgl.KeyRight) {
-			rotation -= 3
-		}
-
-		rotation = rotation % 360
-		rotationRadians := degreesToRadians(rotation)
-
-		if win.Pressed(pixelgl.KeyUp) {
-			d = d.Add(pixel.V(-0.25*math.Sin(rotationRadians), 0.25*math.Cos(rotationRadians)))
-		}
-
-		// calculate new position based on velocity
-		position = position.Add(d)
-		positionAbove = position.Add(pixel.V(0, windowHeight))
-		positionBelow = position.Add(pixel.V(0, -windowHeight))
-		positionLeft = position.Add(pixel.V(-windowWidth, 0))
-		positionRight = position.Add(pixel.V(windowWidth, 0))
-
-		mat := pixel.IM.Moved(position).Scaled(position, 2).Rotated(position, rotationRadians)
-		matAbove := pixel.IM.Moved(positionAbove).Scaled(positionAbove, 2).Rotated(positionAbove, rotationRadians)
-		matBelow := pixel.IM.Moved(positionBelow).Scaled(positionBelow, 2).Rotated(positionBelow, rotationRadians)
-		matLeft := pixel.IM.Moved(positionLeft).Scaled(positionLeft, 2).Rotated(positionLeft, rotationRadians)
-		matRight := pixel.IM.Moved(positionRight).Scaled(positionRight, 2).Rotated(positionRight, rotationRadians)
+		ship.Update(win.Pressed(pixelgl.KeyLeft), win.Pressed(pixelgl.KeyRight), win.Pressed(pixelgl.KeyUp))
 
 		win.Clear(colornames.Black)
 
-		sprite.Draw(win, mat)
-		sprite.Draw(win, matAbove)
-		sprite.Draw(win, matBelow)
-		sprite.Draw(win, matLeft)
-		sprite.Draw(win, matRight)
+		ship.Draw(win)
 
 		txt.Draw(win, pixel.IM)
 
@@ -161,8 +122,4 @@ func loadTTF(path string, size float64) (font.Face, error) {
 		Size:              size,
 		GlyphCacheEntries: 1,
 	}), nil
-}
-
-func degreesToRadians(degrees int) float64 {
-	return float64(degrees) * radianScaleFactor
 }
