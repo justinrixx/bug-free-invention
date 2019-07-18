@@ -37,7 +37,7 @@ func main() {
 func run() {
 	// make the window
 	cfg := pixelgl.WindowConfig{
-		Title:  "smashteroids",
+		Title:  "SMASHTEROIDS",
 		Bounds: pixel.R(0, 0, windowWidth, windowHeight),
 		VSync:  true,
 	}
@@ -51,15 +51,17 @@ func run() {
 	if err != nil {
 		panic(err)
 	}
-	face, err := loadTTF("fonts/Hyperspace.otf", 32)
+	face, err := loadTTF("fonts/Hyperspace.otf", 24)
 	if err != nil {
 		panic(err)
 	}
 
 	atlas := text.NewAtlas(face, text.ASCII)
-	txt := text.New(pixel.V(100, 100), atlas)
+	fuel := text.New(pixel.V(25, windowHeight-36), atlas)
+	lives := text.New(pixel.V(25, windowHeight-65), atlas)
 
-	fmt.Fprintln(txt, "bacon")
+	fmt.Fprintln(fuel, "fuel")
+	fmt.Fprintf(lives, "lives:%d", 5)
 
 	sprite := pixel.NewSprite(pic, pic.Bounds())
 
@@ -85,7 +87,8 @@ func run() {
 
 		ship.Draw(win)
 
-		txt.Draw(win, pixel.IM)
+		fuel.Draw(win, pixel.IM)
+		lives.Draw(win, pixel.IM)
 
 		smashteroids.DrawTerrain(terrain, win, windowWidth)
 
