@@ -7,6 +7,10 @@ const (
 
 	windowWidth  = 1024
 	windowHeight = 764
+
+	gravity = -.15
+
+	maxGravity = -7
 )
 
 func degreesToRadians(degrees int) float64 {

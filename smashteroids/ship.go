@@ -13,8 +13,6 @@ type Ship struct {
 
 	d pixel.Vec
 
-	positionAbove pixel.Vec
-	positionBelow pixel.Vec
 	positionLeft  pixel.Vec
 	positionRight pixel.Vec
 
@@ -22,15 +20,11 @@ type Ship struct {
 }
 
 func (s *Ship) Draw(t pixel.Target) {
-	mat := pixel.IM.Moved(s.Position).Scaled(s.Position, 2).Rotated(s.Position, s.rotationRadians)
-	matAbove := pixel.IM.Moved(s.positionAbove).Scaled(s.positionAbove, 2).Rotated(s.positionAbove, s.rotationRadians)
-	matBelow := pixel.IM.Moved(s.positionBelow).Scaled(s.positionBelow, 2).Rotated(s.positionBelow, s.rotationRadians)
-	matLeft := pixel.IM.Moved(s.positionLeft).Scaled(s.positionLeft, 2).Rotated(s.positionLeft, s.rotationRadians)
-	matRight := pixel.IM.Moved(s.positionRight).Scaled(s.positionRight, 2).Rotated(s.positionRight, s.rotationRadians)
+	mat := pixel.IM.Moved(s.Position).Rotated(s.Position, s.rotationRadians)
+	matLeft := pixel.IM.Moved(s.positionLeft).Rotated(s.positionLeft, s.rotationRadians)
+	matRight := pixel.IM.Moved(s.positionRight).Rotated(s.positionRight, s.rotationRadians)
 
 	s.Sprite.Draw(t, mat)
-	s.Sprite.Draw(t, matAbove)
-	s.Sprite.Draw(t, matBelow)
 	s.Sprite.Draw(t, matLeft)
 	s.Sprite.Draw(t, matRight)
 }
@@ -47,15 +41,18 @@ func (s *Ship) Update(leftPressed, rightPressed, upPressed bool) {
 	s.Rotation = s.Rotation % 360
 	s.rotationRadians = degreesToRadians(s.Rotation)
 
+	// gravity
+	if s.d.Y > maxGravity {
+		s.d = s.d.Add(pixel.V(0, gravity))
+	}
+
 	// calculate new velocity based on user input
 	if upPressed {
-		s.d = s.d.Add(pixel.V(-0.25*math.Sin(s.rotationRadians), 0.25*math.Cos(s.rotationRadians)))
+		s.d = s.d.Add(pixel.V(-0.35*math.Sin(s.rotationRadians), 0.5*math.Cos(s.rotationRadians)))
 	}
 
 	// calculate new position based on velocity
 	s.Position = s.Position.Add(s.d)
-	s.positionAbove = s.Position.Add(pixel.V(0, windowHeight))
-	s.positionBelow = s.Position.Add(pixel.V(0, -windowHeight))
 	s.positionLeft = s.Position.Add(pixel.V(-windowWidth, 0))
 	s.positionRight = s.Position.Add(pixel.V(windowWidth, 0))
 
@@ -65,11 +62,5 @@ func (s *Ship) Update(leftPressed, rightPressed, upPressed bool) {
 	}
 	if s.Position.X < 0 {
 		s.Position.X = s.Position.X + windowWidth
-	}
-	if s.Position.Y > windowHeight {
-		s.Position.Y = s.Position.Y - windowHeight
-	}
-	if s.Position.Y < 0 {
-		s.Position.Y = s.Position.Y + windowHeight
 	}
 }

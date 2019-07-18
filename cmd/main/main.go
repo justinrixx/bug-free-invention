@@ -35,6 +35,7 @@ func main() {
 }
 
 func run() {
+	// make the window
 	cfg := pixelgl.WindowConfig{
 		Title:  "smashteroids",
 		Bounds: pixel.R(0, 0, windowWidth, windowHeight),
@@ -45,11 +46,11 @@ func run() {
 		panic(err)
 	}
 
+	// load assets
 	pic, err := loadPicture("images/ship.png")
 	if err != nil {
 		panic(err)
 	}
-
 	face, err := loadTTF("fonts/Hyperspace.otf", 32)
 	if err != nil {
 		panic(err)
@@ -71,6 +72,8 @@ func run() {
 		Sprite:   sprite,
 	}
 
+	terrain := smashteroids.GenerateTerrain(128, 100, 75, .7)
+
 	// last := time.Now()
 	for !win.Closed() {
 		// dt = time.Since(last).Seconds()
@@ -83,6 +86,8 @@ func run() {
 		ship.Draw(win)
 
 		txt.Draw(win, pixel.IM)
+
+		smashteroids.DrawTerrain(terrain, win, windowWidth)
 
 		win.Update()
 	}
