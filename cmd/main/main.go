@@ -5,7 +5,6 @@ import (
 	"image"
 	_ "image/png"
 	"io/ioutil"
-	"math"
 	"os"
 
 	"github.com/faiface/pixel"
@@ -18,16 +17,8 @@ import (
 )
 
 const (
-	radianScaleFactor = math.Pi / 180
-
 	windowWidth  = 1024
 	windowHeight = 764
-
-	shipWidth     = 50
-	halfShipWidth = shipWidth / 2
-
-	shipHeight     = 60
-	halfShipHeight = shipHeight / 2
 )
 
 func main() {
