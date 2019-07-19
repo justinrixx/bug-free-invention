@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"image"
 	_ "image/png"
 	"io/ioutil"
@@ -9,7 +8,6 @@ import (
 
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
-	"github.com/faiface/pixel/text"
 	"github.com/golang/freetype/truetype"
 	"github.com/justinrixx/bug-free-invention/smashteroids"
 	"golang.org/x/image/colornames"
@@ -19,6 +17,8 @@ import (
 const (
 	windowWidth  = 1024
 	windowHeight = 764
+
+	player1 = 1
 )
 
 func main() {
@@ -47,23 +47,25 @@ func run() {
 		panic(err)
 	}
 
-	atlas := text.NewAtlas(face, text.ASCII)
-	fuel := text.New(pixel.V(25, windowHeight-36), atlas)
-	lives := text.New(pixel.V(25, windowHeight-65), atlas)
-
-	fmt.Fprintln(fuel, "fuel")
-	fmt.Fprintf(lives, "lives:%d", 5)
-
 	sprite := pixel.NewSprite(pic, pic.Bounds())
 
 	position := win.Bounds().Center()
 	rotation := 0
 
-	ship := smashteroids.Ship{
-		Position: position,
-		Rotation: rotation,
-		Sprite:   sprite,
+	player := smashteroids.Player{
+		Ship: &smashteroids.Fighter{
+			Position: position,
+			Rotation: rotation,
+			Sprite:   sprite,
+		},
+		Lives:         5,
+		Fuel:          500.0,
+		TeamID:        player1,
+		FuelLocation:  pixel.V(25, windowHeight-36),
+		LivesLocation: pixel.V(25, windowHeight-65),
 	}
+
+	player.Initialize(face)
 
 	terrain := smashteroids.GenerateTerrain(128, 100, 75, .7)
 
@@ -72,14 +74,11 @@ func run() {
 		// dt = time.Since(last).Seconds()
 		// last = time.Now()
 
-		ship.Update(win.Pressed(pixelgl.KeyLeft), win.Pressed(pixelgl.KeyRight), win.Pressed(pixelgl.KeyUp))
+		player.Update(win.Pressed(pixelgl.KeyLeft), win.Pressed(pixelgl.KeyRight), win.Pressed(pixelgl.KeyUp))
 
 		win.Clear(colornames.Black)
 
-		ship.Draw(win)
-
-		fuel.Draw(win, pixel.IM)
-		lives.Draw(win, pixel.IM)
+		player.Draw(win)
 
 		smashteroids.DrawTerrain(terrain, win, windowWidth)
 

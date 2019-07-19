@@ -43,13 +43,6 @@ func DrawTerrain(terrain []float64, t pixel.Target, width float64) {
 
 	imd.Line(1)
 
-	// imd.Color = colornames.Blueviolet
-	// imd.EndShape = imdraw.RoundEndShape
-	// imd.Push(pixel.V(100, 100), pixel.V(700, 100))
-	// imd.EndShape = imdraw.SharpEndShape
-	// imd.Push(pixel.V(100, 500), pixel.V(700, 500))
-	// imd.Line(30)
-
 	imd.Draw(t)
 }
 

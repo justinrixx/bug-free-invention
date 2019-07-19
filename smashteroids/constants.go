@@ -11,6 +11,8 @@ const (
 	gravity = -.15
 
 	maxGravity = -7
+
+	fuelCapacity = 1000
 )
 
 func degreesToRadians(degrees int) float64 {
